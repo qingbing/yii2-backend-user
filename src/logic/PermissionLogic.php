@@ -18,10 +18,10 @@ use Zf\Helper\Exceptions\CustomException;
 /**
  * 工具 : 分配用户权限
  *
- * Class ToolPermission
+ * Class PermissionLogic
  * @package YiiBackendUser\logic
  */
-class ToolPermission
+class PermissionLogic
 {
     use TLoginRequired;
 

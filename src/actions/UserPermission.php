@@ -9,7 +9,7 @@ namespace YiiBackendUser\actions;
 
 use Exception;
 use yii\base\Action;
-use YiiBackendUser\logic\ToolPermission;
+use YiiBackendUser\logic\PermissionLogic;
 use YiiHelper\helpers\AppHelper;
 use YiiHelper\traits\TResponse;
 
@@ -229,7 +229,7 @@ class UserPermission extends Action
         /*
         if (AppHelper::app()->getUser()->getIsGuest()) {
             AppHelper::app()->getCache()->getOrSet(__CLASS__ . ":public:permission", function () {
-                return ToolPermission::getPublicPermission();
+                return PermissionLogic::getPublicPermission();
             }, 600);
         } else {
             $data = AppHelper::app()->getUser()->getPermissions();
