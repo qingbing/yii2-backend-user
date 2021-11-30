@@ -66,8 +66,8 @@ class MemberController extends RestController
             ['is_valid', 'in', 'label' => '是否有效', 'range' => array_keys(TLabelYesNo::isLabels())],
 
             ['time_type', 'in', 'label' => '时间', 'range' => array_keys(User::timeTypes())],
-            ['start_at', 'datetime', 'label' => '注册开始时间', 'format' => 'php:Y-m-d H:i:s'],
-            ['end_at', 'datetime', 'label' => '注册结束时间', 'format' => 'php:Y-m-d H:i:s'],
+            ['start_at', 'datetime', 'label' => '开始时间', 'format' => 'php:Y-m-d H:i:s'],
+            ['end_at', 'datetime', 'label' => '结束时间', 'format' => 'php:Y-m-d H:i:s'],
         ], null, true);
         // 业务处理
         $res = $this->service->list($params);

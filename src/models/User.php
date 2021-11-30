@@ -17,6 +17,10 @@ use YiiBackendUser\components\User as UserComponent;
 use YiiHelper\abstracts\Model;
 use YiiHelper\behaviors\DefaultBehavior;
 use YiiHelper\behaviors\IpBehavior;
+use YiiPermission\models\PermissionApi;
+use YiiPermission\models\PermissionMenu;
+use YiiPermission\models\PermissionRole;
+use YiiPermission\models\PermissionUserRole;
 use Zf\Helper\Exceptions\BusinessException;
 use Zf\Helper\Util;
 

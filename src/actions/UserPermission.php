@@ -9,7 +9,7 @@ namespace YiiBackendUser\actions;
 
 use Exception;
 use yii\base\Action;
-use YiiBackendUser\logic\PermissionLogic;
+use YiiPermission\logic\PermissionLogic;
 use YiiHelper\helpers\AppHelper;
 use YiiHelper\traits\TResponse;
 

@@ -9,12 +9,12 @@ namespace YiiBackendUser\actions;
 
 use Exception;
 use yii\base\Action;
-use YiiBackendUser\logic\PermissionLogic;
 use YiiBackendUser\models\User;
 use YiiHelper\helpers\AppHelper;
 use YiiHelper\traits\TLoginRequired;
 use YiiHelper\traits\TResponse;
 use YiiHelper\traits\TValidator;
+use YiiPermission\logic\PermissionLogic;
 use Zf\Helper\Traits\Models\TLabelYesNo;
 
 /**
