@@ -39,10 +39,10 @@ yii2实现组件:后管用户管理
 ### 1.3 配置后管页面权限控制 web.php
 ```php
 'bootstrap'     => [
-    'permissionChecking',
+    'bootPermission',
 ],
 'components' => [
-    'permissionChecking' => [
+    'bootPermission' => [
         'class'      => \YiiBackendUser\bootstraps\PermissionBootstrap::class,
         'openCheck'  => true,
         'pubPaths'   => [
@@ -60,3 +60,7 @@ yii2实现组件:后管用户管理
     ],
 ],
 ```
+
+## 二、对外 action
+- \YiiBackendUser\actions\AssignUserRole::class(为用户分配角色)
+- \YiiBackendUser\actions\UserPermission::class(登录用户拥有的权限)
