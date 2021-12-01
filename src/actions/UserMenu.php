@@ -9,10 +9,10 @@ namespace YiiBackendUser\actions;
 
 
 use Exception;
-use Yii;
 use yii\base\Action;
 use YiiBackendUser\models\User;
 use YiiHelper\helpers\AppHelper;
+use YiiHelper\helpers\Req;
 use YiiHelper\traits\TResponse;
 use YiiHelper\traits\TValidator;
 use YiiPermission\models\PermissionMenu;
@@ -49,7 +49,7 @@ class UserMenu extends Action
     {
         // 参数验证和获取
         $this->params = $this->validateParams([
-            ['uid', 'exist', 'label' => '用户', 'default' => Yii::$app->getUser()->getId(), 'targetClass' => User::class, 'targetAttribute' => 'uid'],
+            ['uid', 'exist', 'label' => '用户', 'default' => Req::getUid(), 'targetClass' => User::class, 'targetAttribute' => 'uid'],
             ['isTree', 'boolean', 'label' => '是否结构化', 'default' => true],
             ['type', 'in', 'range' => array_keys(PermissionMenu::types()), 'label' => '菜单类型', 'default' => PermissionMenu::TYPE_MENU],
         ]);
