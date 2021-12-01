@@ -43,7 +43,7 @@ yii2实现组件:后管用户管理
 ],
 'components' => [
     'bootPermission' => [
-        'class'      => \YiiBackendUser\bootstraps\PermissionBootstrap::class,
+        'class'      => \YiiBackendUser\boots\PermissionBootstrap::class,
         'openCheck'  => true,
         'pubPaths'   => [
             'portal/inner/*', // inner模块接口属于内部服务调用接口，模块内部

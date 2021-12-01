@@ -5,7 +5,7 @@
  * @copyright   Chengdu Qb Technology Co., Ltd.
  */
 
-namespace YiiBackendUser\bootstraps;
+namespace YiiBackendUser\boots;
 
 
 use yii\base\Application;
@@ -21,7 +21,7 @@ use Zf\Helper\Exceptions\BusinessException;
  * bootstrap组件 : 权限控制
  *
  * Class PermissionBootstrap
- * @package YiiBackendUser\bootstraps
+ * @package YiiBackendUser\boots
  */
 class PermissionBootstrap implements BootstrapInterface
 {
