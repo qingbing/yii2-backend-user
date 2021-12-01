@@ -398,7 +398,7 @@ class User extends Model implements IdentityInterface
             ->joinWith(['menus.apis'])
             ->select([
                 'role_code' => 'role.code',
-                'role_name' => 'role.remark',
+                'role_name' => 'role.name',
                 'menu_code' => 'menu.code',
                 'menu_path' => 'menu.path',
                 'api_code'  => 'api.code',

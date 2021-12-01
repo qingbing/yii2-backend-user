@@ -60,7 +60,7 @@ class AssignUserRole extends Action
                 ]
             ]
         ], null, false, ['role_codes'], ',');
-        return parent::beforeRun();
+        return true;
     }
 
     /**
