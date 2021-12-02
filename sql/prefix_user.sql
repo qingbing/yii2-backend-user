@@ -22,8 +22,8 @@ CREATE TABLE `{{%user}}` (
   `is_super` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否超级用户',
   `refer_uid` bigint(20) unsigned NOT NULL DEFAULT '0' COMMENT '引荐人或添加人UID',
   `expire_ip` varchar(255) NOT NULL DEFAULT '' COMMENT '有效IP地址',
-  `expire_begin_at` date NOT NULL DEFAULT '1000-01-01' COMMENT '生效日期',
-  `expire_end_at` date NOT NULL DEFAULT '1000-01-01' COMMENT '失效日期',
+  `expire_begin_date` date NOT NULL DEFAULT '1000-01-01' COMMENT '生效日期',
+  `expire_end_date` date NOT NULL DEFAULT '1000-01-01' COMMENT '失效日期',
   `login_times` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '登录次数',
   `last_login_ip` varchar(15) NOT NULL DEFAULT '' COMMENT '最后登录IP',
   `last_login_at` datetime NOT NULL DEFAULT '1000-01-01 01:01:01' COMMENT '最后登录时间',
@@ -39,9 +39,9 @@ CREATE TABLE `{{%user}}` (
 
 
 -- ----------------------------
---  Table structure for `{{%user}}_account`
+--  Table structure for `{{%user_account}}`
 -- ----------------------------
-CREATE TABLE `{{%user}}_account` (
+CREATE TABLE `{{%user_account}}` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
   `uid` bigint(20) unsigned NOT NULL COMMENT '用户ID',
   `type` varchar(20) NOT NULL COMMENT '账户类型:username,email,phone,name,weixin,qq等',
@@ -58,11 +58,11 @@ CREATE TABLE `{{%user}}_account` (
 
 
 insert into `{{%user}}`
-(`password`, `auth_key`,  `nickname`, `real_name`, `sex`, `avatar`, `email`, `mobile`, `phone`, `qq`, `id_card`, `birthday`, `address`, `zip_code`, `is_enable`, `is_super`, `refer_uid`, `expire_ip`, `expire_begin_at`, `expire_end_at`, `login_times`, `last_login_ip`, `last_login_at`, `register_ip`) values
+(`password`, `auth_key`,  `nickname`, `real_name`, `sex`, `avatar`, `email`, `mobile`, `phone`, `qq`, `id_card`, `birthday`, `address`, `zip_code`, `is_enable`, `is_super`, `refer_uid`, `expire_ip`, `expire_begin_date`, `expire_end_date`, `login_times`, `last_login_ip`, `last_login_at`, `register_ip`) values
 ('$2y$13$10RjkwZ8kbam8hRAYqAoxuxMHnnPScxDljb1wxrXlTniY8kIjDaBm', 'auth_key',  '追xin族', 'qingbing', '0', '', 'top-world@qq.com', '', '', '', '', '1000-01-01', '', '', '1', '1', '0', '', '1000-01-01', '1000-01-01', '0', '', '1000-01-01 01:01:01', '');
 
 
-insert into `{{%user}}_account`
+insert into `{{%user_account}}`
 ( `uid`, `type`, `account`, `is_enable`, `login_times`, `last_login_ip`, `last_login_at`) values
 ( '100000000', 'email', 'top-world@qq.com', '1', '0', '', '1000-01-01 01:01:01'),
 ( '100000000', 'username', 'qingbing', '1', '0', '', '1000-01-01 01:01:01');

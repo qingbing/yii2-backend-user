@@ -46,8 +46,8 @@ use Zf\Helper\Util;
  * @property int $is_super 是否超级用户
  * @property int $refer_uid 引荐人或添加人UID
  * @property string $expire_ip 有效IP地址
- * @property string $expire_begin_at 生效日期
- * @property string $expire_end_at 失效日期
+ * @property string $expire_begin_date 生效日期
+ * @property string $expire_end_date 失效日期
  * @property int $login_times 登录次数
  * @property string $last_login_ip 最后登录IP
  * @property string $last_login_at 最后登录时间
@@ -76,7 +76,7 @@ class User extends Model implements IdentityInterface
         return [
             [['nickname'], 'required'],
             [['sex', 'is_enable', 'is_super', 'refer_uid', 'login_times'], 'integer'],
-            [['birthday', 'expire_begin_at', 'expire_end_at', 'last_login_at', 'register_at', 'updated_at'], 'safe'],
+            [['birthday', 'expire_begin_date', 'expire_end_date', 'last_login_at', 'register_at', 'updated_at'], 'safe'],
             [['nickname'], 'string', 'max' => 50],
             [['real_name'], 'string', 'max' => 30],
             [['password'], 'string', 'max' => 60],
@@ -97,33 +97,33 @@ class User extends Model implements IdentityInterface
     public function attributeLabels()
     {
         return [
-            'uid'             => '自增ID',
-            'nickname'        => '昵称',
-            'real_name'       => '姓名',
-            'password'        => '密码',
-            'auth_key'        => '登录的auth_key',
-            'sex'             => '性别',
-            'avatar'          => '头像',
-            'email'           => '邮箱账户',
-            'mobile'          => '手机号码',
-            'phone'           => '固定电话',
-            'qq'              => 'QQ',
-            'id_card'         => '身份证号',
-            'birthday'        => '生日',
-            'address'         => '联系地址',
-            'zip_code'        => '邮政编码',
-            'is_enable'       => '启用状态',
-            'is_super'        => '超级用户',
-            'refer_uid'       => '引荐人',
-            'expire_ip'       => '有效IP地址',
-            'expire_begin_at' => '生效日期',
-            'expire_end_at'   => '失效日期',
-            'login_times'     => '登录次数',
-            'last_login_ip'   => '登录IP',
-            'last_login_at'   => '登录时间',
-            'register_ip'     => '注册IP',
-            'register_at'     => '注册时间',
-            'updated_at'      => '更新时间',
+            'uid'               => '自增ID',
+            'nickname'          => '昵称',
+            'real_name'         => '姓名',
+            'password'          => '密码',
+            'auth_key'          => '登录的auth_key',
+            'sex'               => '性别',
+            'avatar'            => '头像',
+            'email'             => '邮箱账户',
+            'mobile'            => '手机号码',
+            'phone'             => '固定电话',
+            'qq'                => 'QQ',
+            'id_card'           => '身份证号',
+            'birthday'          => '生日',
+            'address'           => '联系地址',
+            'zip_code'          => '邮政编码',
+            'is_enable'         => '启用状态',
+            'is_super'          => '超级用户',
+            'refer_uid'         => '引荐人',
+            'expire_ip'         => '有效IP地址',
+            'expire_begin_date' => '生效日期',
+            'expire_end_date'   => '失效日期',
+            'login_times'       => '登录次数',
+            'last_login_ip'     => '登录IP',
+            'last_login_at'     => '登录时间',
+            'register_ip'       => '注册IP',
+            'register_at'       => '注册时间',
+            'updated_at'        => '更新时间',
         ];
     }
 
@@ -147,8 +147,8 @@ class User extends Model implements IdentityInterface
                 'class'      => DefaultBehavior::class,
                 'type'       => DefaultBehavior::TYPE_DATETIME,
                 'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['expire_begin_at', 'expire_end_at', 'last_login_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['expire_begin_at', 'expire_end_at', 'last_login_at'],
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['expire_begin_date', 'expire_end_date', 'last_login_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['expire_begin_date', 'expire_end_date', 'last_login_at'],
                 ],
             ],
             [

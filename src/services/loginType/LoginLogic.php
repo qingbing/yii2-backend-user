@@ -90,11 +90,11 @@ abstract class LoginLogic extends BaseObject
         }
         $today = Format::date();
         // 用户生效判断
-        if ($user->expire_begin_at > '1900-01-01' && $user->expire_begin_at > $today) {
+        if ($user->expire_begin_date > '1900-01-01' && $user->expire_begin_date > $today) {
             throw new BusinessException('用户未生效');
         }
         // 用户失效判断
-        if ($user->expire_end_at > '1900-01-01' && $user->expire_end_at < $today) {
+        if ($user->expire_end_date > '1900-01-01' && $user->expire_end_date < $today) {
             throw new BusinessException('用户已失效');
         }
         // 整体网站IP段配置

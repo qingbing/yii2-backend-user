@@ -93,8 +93,8 @@ class MemberController extends RestController
             ['sex', 'in', 'label' => '性别', 'default' => 0, 'range' => array_keys(TLabelSex::sexLabels())],
             ['is_enable', 'in', 'label' => '启用状态', 'range' => array_keys(TLabelEnable::enableLabels())],
             ['expire_ip', 'string', 'label' => '有效IP地址'],
-            ['expire_begin_at', 'date', 'label' => '生效日期', 'format' => 'php:Y-m-d'],
-            ['expire_end_at', 'date', 'label' => '失效日期', 'format' => 'php:Y-m-d'],
+            ['expire_begin_date', 'date', 'label' => '生效日期', 'format' => 'php:Y-m-d'],
+            ['expire_end_date', 'date', 'label' => '失效日期', 'format' => 'php:Y-m-d'],
         ];
         array_push($rules, UserAccount::getAccountValidatorRule($accountType));
         $params = $this->validateParams($rules);
@@ -117,8 +117,8 @@ class MemberController extends RestController
             [['uid'], 'required'],
             ['uid', 'exist', 'label' => 'UID', 'targetClass' => User::class, 'targetAttribute' => 'uid'],
             ['expire_ip', 'string', 'label' => '有效IP地址'],
-            ['expire_begin_at', 'date', 'label' => '生效日期', 'format' => 'php:Y-m-d'],
-            ['expire_end_at', 'date', 'label' => '失效日期', 'format' => 'php:Y-m-d'],
+            ['expire_begin_date', 'date', 'label' => '生效日期', 'format' => 'php:Y-m-d'],
+            ['expire_end_date', 'date', 'label' => '失效日期', 'format' => 'php:Y-m-d'],
         ]);
         // 业务处理
         $res = $this->service->edit($params);

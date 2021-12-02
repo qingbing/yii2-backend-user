@@ -62,14 +62,14 @@ class MemberService extends Service implements IMemberService
                     'or',
                     [ // 未设置有效期的
                       'and',
-                      ['<', 'expire_end_at', EMPTY_TIME_MIN],
-                      ['<', 'expire_end_at', EMPTY_TIME_MIN],
+                      ['<', 'expire_end_date', EMPTY_TIME_MIN],
+                      ['<', 'expire_end_date', EMPTY_TIME_MIN],
                     ], [
                         'not', // 有效反转
                         [ // 有效期的
                           'and',
-                          ['<', 'expire_end_at', $nowDatetime],
-                          ['>', 'expire_begin_at', $nowDatetime],
+                          ['<', 'expire_end_date', $nowDatetime],
+                          ['>', 'expire_begin_date', $nowDatetime],
                         ]
                     ]
                 ]);
@@ -77,15 +77,15 @@ class MemberService extends Service implements IMemberService
                 // 失效用户
                 $query->andWhere([
                     'and',
-                    ['<', 'expire_end_at', $nowDatetime],
-                    ['>', 'expire_begin_at', $nowDatetime],
+                    ['<', 'expire_end_date', $nowDatetime],
+                    ['>', 'expire_begin_date', $nowDatetime],
                 ]);
             }
         }
         if ("" !== $params['time_type'] && null !== $params['time_type']) {
             if ($params['time_type'] == User::TIME_TYPE_EXPIRE) {
-                $query->andFilterWhere(['>=', 'expire_begin_at', $params['start_at']])
-                    ->andFilterWhere(['<=', 'expire_end_at', $params['end_at']]);
+                $query->andFilterWhere(['>=', 'expire_begin_date', $params['start_at']])
+                    ->andFilterWhere(['<=', 'expire_end_date', $params['end_at']]);
             } else if ($params['time_type'] == User::TIME_TYPE_LOGIN) {
                 $query->andFilterWhere(['>=', 'last_login_at', $params['start_at']])
                     ->andFilterWhere(['<=', 'last_login_at', $params['end_at']]);
