@@ -16,6 +16,7 @@ use YiiHelper\traits\TResponse;
 use YiiPermission\models\PermissionApi;
 use Zf\Helper\Business\IpHelper;
 use Zf\Helper\Exceptions\BusinessException;
+use Zf\Helper\Util;
 
 /**
  * bootstrap组件 : 权限控制
@@ -102,11 +103,11 @@ class PermissionBootstrap implements BootstrapInterface
             return true;
         }
         // 公共路径检查
-        if ($this->inUrlPath($urlPath, $this->pubPaths)) {
+        if (Util::inUrlPath($urlPath, $this->pubPaths)) {
             return true;
         }
         // 路径白名单检查
-        if (!$this->inUrlPath($urlPath, $this->whitePaths)) {
+        if (!Util::inUrlPath($urlPath, $this->whitePaths)) {
             return $this->deny(self::ERROR_CODE_PATH_NOT_ALLOW);
         }
         // ip 白名单检查
@@ -114,25 +115,6 @@ class PermissionBootstrap implements BootstrapInterface
             return true;
         }
         return $this->deny(self::ERROR_CODE_IP_NOT_ALLOW);
-    }
-
-    /**
-     * 判断url-path是否在设置的白名单内
-     *
-     * @param string $path
-     * @param array $urlPaths
-     * @return bool
-     */
-    protected function inUrlPath(string $path, array $urlPaths)
-    {
-        foreach ($urlPaths as $urlPath) {
-            $urlPath = str_replace('/', '\/', trim($urlPath));
-            $urlPath = str_replace('*', '(.*)', trim($urlPath));
-            if (preg_match('#^' . $urlPath . '$#', $path, $ms)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

@@ -131,7 +131,7 @@ class UserMenu extends Action
             ->setPid('parentCode')
             ->setTopTag('')
             ->setSubDataName('subItems')
-            ->setData($treeData)
+            ->setSourceData($treeData)
             ->getTreeData();
         return $this->success(array_values($treeData));
     }
