@@ -19,12 +19,12 @@ yii2实现组件:后管用户管理
 ### 1.2 配置用户登录 web.php
 ```php
 'components' => [
-    'user'               => [
+    'user'           => [
         'class'           => \YiiBackendUser\components\User::class,
         'identityClass'   => \YiiBackendUser\models\User::class,
         'enableAutoLogin' => true,
-        'identityCookie'  => ['name' => '_identity-portal', 'httpOnly' => true],
-        'multiLogin'      => false, // 是否允许多客户端登录，false时，每次登录会重新生成用户的 auth_key
+        'identityCookie'  => ['name' => '_identity-' . define_var('CONF_APP_ID', 'portal'), 'httpOnly' => true],
+        'multiLogin'      => define_var('COM_USER_ALLOW_MULTI', false), // 是否允许多客户端登录，false时，每次登录会重新生成用户的 auth_key
         // 允许登录的账户类型
         'loginTypes'      => [
             \YiiBackendUser\models\UserAccount::TYPE_EMAIL,
@@ -44,7 +44,7 @@ yii2实现组件:后管用户管理
 'components' => [
     'bootPermission' => [
         'class'      => \YiiBackendUser\boots\PermissionBootstrap::class,
-        'openCheck'  => true,
+        'openCheck'  => define_var('COM_BOOT_PERMISSION_OPEN_CHECK', true), // 是否开启权限检查
         'pubPaths'   => [
             'portal/inner/*', // inner模块接口属于内部服务调用接口，模块内部
             'portal/login/*', // 登录及检查
@@ -59,6 +59,16 @@ yii2实现组件:后管用户管理
         ],
     ],
 ],
+```
+
+### 1.4 组件常量配置 define-local.php
+```php
+// user 组件配置
+defined('COM_USER_ALLOW_MULTI') or define('COM_USER_ALLOW_MULTI', true); // 是否允许多终端登录
+
+// bootPermission 组件
+defined('COM_BOOT_PERMISSION_OPEN_CHECK') or define('COM_BOOT_PERMISSION_OPEN_CHECK', true); // 是否开启权限检查
+
 ```
 
 ## 二、对外 action
