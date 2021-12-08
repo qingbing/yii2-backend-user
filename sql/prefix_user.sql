@@ -7,6 +7,7 @@ CREATE TABLE `{{%user}}` (
   `nickname` varchar(50) NOT NULL COMMENT '用户昵称',
   `real_name` varchar(30) NOT NULL DEFAULT '' COMMENT '姓名',
   `password` char(60) NOT NULL DEFAULT '' COMMENT '密码',
+  `security_password` char(60) NOT NULL DEFAULT '' COMMENT '安全操作密码',
   `auth_key` varchar(32) NOT NULL DEFAULT 'auth_key' COMMENT '登录的auth_key',
   `sex` tinyint(1) NOT NULL DEFAULT '0' COMMENT '性别[0:保密,1:男士,2:女士]',
   `avatar` varchar(200) NOT NULL DEFAULT '' COMMENT '头像',

@@ -19,6 +19,7 @@ use YiiHelper\helpers\Pager;
 use YiiHelper\helpers\Req;
 use Zf\Helper\Exceptions\BusinessException;
 use Zf\Helper\Exceptions\ForbiddenHttpException;
+use Zf\Helper\Exceptions\UnsupportedException;
 use Zf\Helper\Format;
 
 /**
@@ -54,33 +55,8 @@ class MemberService extends Service implements IMemberService
         // like 查询
         $this->likeWhere($query, $params, ['mobile', 'id_card']);
         // 是否有效查询
-        if ("" !== $params['is_valid'] && null !== $params['is_valid']) {
-            $nowDatetime = Format::datetime();
-            if ($params['is_valid']) {
-                // 有效用户
-                $query->andWhere([
-                    'or',
-                    [ // 未设置有效期的
-                      'and',
-                      ['<', 'expire_end_date', EMPTY_TIME_MIN],
-                      ['<', 'expire_end_date', EMPTY_TIME_MIN],
-                    ], [
-                        'not', // 有效反转
-                        [ // 有效期的
-                          'and',
-                          ['<', 'expire_end_date', $nowDatetime],
-                          ['>', 'expire_begin_date', $nowDatetime],
-                        ]
-                    ]
-                ]);
-            } else {
-                // 失效用户
-                $query->andWhere([
-                    'and',
-                    ['<', 'expire_end_date', $nowDatetime],
-                    ['>', 'expire_begin_date', $nowDatetime],
-                ]);
-            }
+        if (isset($params['isExpire'])) {
+            $this->expireWhere($query, $params['isExpire'], 'expire_begin_date', 'expire_end_date');
         }
         if ("" !== $params['time_type'] && null !== $params['time_type']) {
             if ($params['time_type'] == User::TIME_TYPE_EXPIRE) {
@@ -164,7 +140,7 @@ class MemberService extends Service implements IMemberService
      */
     public function del(array $params): bool
     {
-        throw new ForbiddenHttpException("该功能未开通，如果需要去掉该用户请直接禁用该用户即可");
+        throw new UnsupportedException("该功能未开通，建议使用禁用功能");
     }
 
     /**

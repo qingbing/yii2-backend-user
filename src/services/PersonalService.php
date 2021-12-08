@@ -16,6 +16,7 @@ use YiiHelper\abstracts\Service;
 use YiiHelper\helpers\AppHelper;
 use Zf\Helper\Exceptions\BusinessException;
 use Zf\Helper\Exceptions\ForbiddenHttpException;
+use Zf\Helper\Exceptions\UnsupportedException;
 
 /**
  * 服务 ： 个人信息管理
@@ -71,6 +72,24 @@ class PersonalService extends Service implements IPersonalService
     }
 
     /**
+     * 重置个人安全操作密码
+     *
+     * @param array $params
+     * @return bool
+     * @throws \Throwable
+     * @throws Exception
+     */
+    public function resetSecurityPassword(array $params): bool
+    {
+        $user = $this->getUser();
+        if ($user->validatePassword($params['password'])) {
+            $user->security_password = $user->generatePassword($params['securityPassword']);
+            return $user->saveOrException();
+        }
+        throw new BusinessException("登录密码输入不正确");
+    }
+
+    /**
      * 获取登录用户模型
      *
      * @return \yii\web\IdentityInterface|User
@@ -123,7 +142,7 @@ class PersonalService extends Service implements IPersonalService
      */
     public function editAccount(array $params): bool
     {
-        throw new BusinessException("该功能尚未开通");
+        throw new UnsupportedException("该功能未开通，建议使用禁用功能");
         // $model = $this->getUserAccount($params);
         // unset($params['id']);
         // $model->setFilterAttributes($params);

@@ -14,7 +14,6 @@ use YiiBackendUser\interfaces\IPersonalService;
 use YiiBackendUser\models\User;
 use YiiBackendUser\models\UserAccount;
 use YiiBackendUser\services\PersonalService;
-use YiiBackendUser\validators\UserPasswordValidator;
 use YiiHelper\abstracts\RestController;
 use YiiHelper\helpers\Req;
 use YiiHelper\validators\IdCardValidator;
@@ -23,6 +22,7 @@ use YiiHelper\validators\NameValidator;
 use YiiHelper\validators\PasswordValidator;
 use YiiHelper\validators\PhoneValidator;
 use YiiHelper\validators\QqValidator;
+use YiiHelper\validators\SecurityOperateValidator;
 use YiiHelper\validators\ZipCodeValidator;
 use Zf\Helper\Exceptions\ForbiddenHttpException;
 use Zf\Helper\Traits\Models\TLabelEnable;
@@ -134,7 +134,7 @@ class PersonalController extends RestController
         // 参数验证和获取
         $params = $this->validateParams([
             [['oldPassword', 'newPassword', 'confirmPassword'], 'required'],
-            ['oldPassword', UserPasswordValidator::class, 'label' => '旧密码'],
+            ['oldPassword', SecurityOperateValidator::class, 'label' => '旧密码', 'method' => 'validatePassword'],
             ['newPassword', PasswordValidator::class, 'label' => '新密码'],
             ['confirmPassword', 'compare', 'label' => '确认密码', 'compareAttribute' => 'newPassword'],
         ]);
@@ -142,6 +142,26 @@ class PersonalController extends RestController
         $res = $this->service->resetPassword($params);
         // 渲染结果
         return $this->success($res, '修改个人密码');
+    }
+
+    /**
+     * 重置个人安全操作密码
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function actionResetSecurityPassword()
+    {
+        // 参数验证和获取
+        $params = $this->validateParams([
+            [['password', 'securityPassword'], 'required'],
+            ['password', SecurityOperateValidator::class, 'label' => '登录密码', 'method' => 'validatePassword'],
+            ['securityPassword', 'string', 'min' => 6, 'label' => '操作密码'],
+        ]);
+        // 业务处理
+        $res = $this->service->resetSecurityPassword($params);
+        // 渲染结果
+        return $this->success($res, '重置操作密码');
     }
 
     /**

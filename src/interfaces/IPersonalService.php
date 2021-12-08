@@ -41,6 +41,14 @@ interface IPersonalService extends IService
     public function resetPassword(array $params): bool;
 
     /**
+     * 重置个人安全操作密码
+     *
+     * @param array $params
+     * @return bool
+     */
+    public function resetSecurityPassword(array $params): bool;
+
+    /**
      * 个人账户信息
      *
      * @return mixed

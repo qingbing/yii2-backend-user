@@ -31,6 +31,7 @@ use Zf\Helper\Util;
  * @property string $nickname 用户昵称
  * @property string $real_name 姓名
  * @property string $password 密码
+ * @property string $security_password 安全操作密码
  * @property string $auth_key 登录的auth_key
  * @property int $sex 性别[0:保密,1:男士,2:女士]
  * @property string $avatar 头像
@@ -79,7 +80,7 @@ class User extends Model implements IdentityInterface
             [['birthday', 'expire_begin_date', 'expire_end_date', 'last_login_at', 'register_at', 'updated_at'], 'safe'],
             [['nickname'], 'string', 'max' => 50],
             [['real_name'], 'string', 'max' => 30],
-            [['password'], 'string', 'max' => 60],
+            [['password', 'security_password'], 'string', 'max' => 60],
             [['auth_key'], 'string', 'max' => 32],
             [['avatar'], 'string', 'max' => 200],
             [['email'], 'string', 'max' => 100],
@@ -98,11 +99,12 @@ class User extends Model implements IdentityInterface
     {
         return [
             'uid'               => '自增ID',
-            'nickname'          => '昵称',
+            'nickname'          => '用户昵称',
             'real_name'         => '姓名',
             'password'          => '密码',
+            'security_password' => '安全操作密码',
             'auth_key'          => '登录的auth_key',
-            'sex'               => '性别',
+            'sex'               => '性别[0:保密,1:男士,2:女士]',
             'avatar'            => '头像',
             'email'             => '邮箱账户',
             'mobile'            => '手机号码',
@@ -112,9 +114,9 @@ class User extends Model implements IdentityInterface
             'birthday'          => '生日',
             'address'           => '联系地址',
             'zip_code'          => '邮政编码',
-            'is_enable'         => '启用状态',
-            'is_super'          => '超级用户',
-            'refer_uid'         => '引荐人',
+            'is_enable'         => '用户启用状态',
+            'is_super'          => '是否超级用户',
+            'refer_uid'         => '引荐人或添加人UID',
             'expire_ip'         => '有效IP地址',
             'expire_begin_date' => '生效日期',
             'expire_end_date'   => '失效日期',
@@ -221,7 +223,7 @@ class User extends Model implements IdentityInterface
     }
 
     /**
-     * 验证 db 密码是否正确
+     * 验证 db 登录密码是否正确
      *
      * @param string $pass
      * @return bool
@@ -229,6 +231,17 @@ class User extends Model implements IdentityInterface
     public function validatePassword(string $pass)
     {
         return Yii::$app->getSecurity()->validatePassword($pass, $this->password);
+    }
+
+    /**
+     * 验证 security 密码是否正确
+     *
+     * @param string $pass
+     * @return bool
+     */
+    public function validateSecurityPassword(string $pass)
+    {
+        return Yii::$app->getSecurity()->validatePassword($pass, $this->security_password);
     }
 
     /**
@@ -268,7 +281,7 @@ class User extends Model implements IdentityInterface
     public function fields()
     {
         $fields = parent::fields();
-        unset($fields['password'], $fields['auth_key']);
+        unset($fields['password'], $fields['security_password'], $fields['auth_key']);
         return $fields;
     }
 

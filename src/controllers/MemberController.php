@@ -14,8 +14,8 @@ use YiiBackendUser\interfaces\IMemberService;
 use YiiBackendUser\models\User;
 use YiiBackendUser\models\UserAccount;
 use YiiBackendUser\services\MemberService;
-use YiiBackendUser\validators\UserPasswordValidator;
 use YiiHelper\abstracts\RestController;
+use YiiHelper\validators\SecurityOperateValidator;
 use Zf\Helper\Traits\Models\TLabelEnable;
 use Zf\Helper\Traits\Models\TLabelSex;
 use Zf\Helper\Traits\Models\TLabelYesNo;
@@ -63,7 +63,7 @@ class MemberController extends RestController
             ['is_enable', 'in', 'label' => '启用状态', 'range' => array_keys(TLabelEnable::enableLabels())],
             ['is_super', 'in', 'label' => '是否超管', 'range' => array_keys(TLabelYesNo::isLabels())],
             ['refer_uid', 'exist', 'label' => 'UID', 'targetClass' => User::class, 'targetAttribute' => 'uid'],
-            ['is_valid', 'in', 'label' => '是否有效', 'range' => array_keys(TLabelYesNo::isLabels())],
+            ['isExpire', 'in', 'label' => '是否有效', 'range' => array_keys(TLabelYesNo::isLabels())],
 
             ['time_type', 'in', 'label' => '时间', 'range' => array_keys(User::timeTypes())],
             ['start_at', 'datetime', 'label' => '开始时间', 'format' => 'php:Y-m-d H:i:s'],
@@ -136,8 +136,9 @@ class MemberController extends RestController
     {
         // 参数验证和获取
         $params = $this->validateParams([
-            [['uid'], 'required'],
+            [['uid', 'securityPassword'], 'required'],
             ['uid', 'exist', 'label' => 'UID', 'targetClass' => User::class, 'targetAttribute' => 'uid'],
+            ['securityPassword', SecurityOperateValidator::class, 'label' => '操作密码'],
         ]);
         // 业务处理
         $res = $this->service->del($params);
@@ -174,10 +175,10 @@ class MemberController extends RestController
     {
         // 参数验证和获取
         $params = $this->validateParams([
-            [['uid', 'password', 'personalPassword'], 'required'],
+            [['uid', 'password', 'securityPassword'], 'required'],
             ['uid', 'exist', 'label' => 'UID', 'targetClass' => User::class, 'targetAttribute' => 'uid'],
             ['password', 'string', 'label' => '登录密码', 'min' => 6],
-            ['personalPassword', UserPasswordValidator::class, 'label' => '私人登录密码'],
+            ['securityPassword', SecurityOperateValidator::class, 'label' => '操作密码'],
         ]);
         // 业务处理
         $res = $this->service->resetPassword($params);
@@ -214,10 +215,10 @@ class MemberController extends RestController
     {
         // 参数验证和获取
         $params = $this->validateParams([
-            [['uid', 'status', 'personalPassword'], 'required'],
+            [['uid', 'status', 'securityPassword'], 'required'],
             ['uid', 'exist', 'label' => 'UID', 'targetClass' => User::class, 'targetAttribute' => 'uid'],
             ['status', 'in', 'label' => '启用状态', 'range' => array_keys(TLabelEnable::enableLabels())],
-            ['personalPassword', UserPasswordValidator::class, 'label' => '私人登录密码'],
+            ['securityPassword', SecurityOperateValidator::class, 'label' => '操作密码'],
         ]);
         // 业务处理
         $res = $this->service->changeStatus($params);
@@ -235,10 +236,10 @@ class MemberController extends RestController
     {
         // 参数验证和获取
         $params = $this->validateParams([
-            [['uid', 'status', 'personalPassword'], 'required'],
+            [['uid', 'status', 'securityPassword'], 'required'],
             ['uid', 'exist', 'label' => 'UID', 'targetClass' => User::class, 'targetAttribute' => 'uid'],
             ['status', 'in', 'label' => '启用状态', 'range' => array_keys(TLabelEnable::enableLabels())],
-            ['personalPassword', UserPasswordValidator::class, 'label' => '私人登录密码'],
+            ['securityPassword', SecurityOperateValidator::class, 'label' => '操作密码'],
         ]);
         // 业务处理
         $res = $this->service->changeSuperStatus($params);
