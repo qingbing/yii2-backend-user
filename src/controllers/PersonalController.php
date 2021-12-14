@@ -9,7 +9,7 @@ namespace YiiBackendUser\controllers;
 
 use Exception;
 use Yii;
-use YiiBackendUser\actions\UserMenu;
+use YiiBackendUser\actions\ActionUserMenu;
 use YiiBackendUser\interfaces\IPersonalService;
 use YiiBackendUser\models\User;
 use YiiBackendUser\models\UserAccount;
@@ -71,7 +71,7 @@ class PersonalController extends RestController
         return [
             // 登录用户菜单权限
             'menu' => [
-                'class' => UserMenu::class,
+                'class' => ActionUserMenu::class,
             ],
         ];
     }

@@ -20,10 +20,10 @@ use Zf\Helper\Traits\Models\TLabelYesNo;
 /**
  * 操作 : 为用户分配角色
  *
- * Class AssignUserRole
+ * Class ActionAssignUserRole
  * @package YiiBackendUser\actions
  */
-class AssignUserRole extends Action
+class ActionAssignUserRole extends Action
 {
     use TValidator;
     use TLoginRequired;

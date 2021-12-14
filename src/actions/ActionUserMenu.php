@@ -23,10 +23,10 @@ use Zf\Helper\Exceptions\CustomException;
 /**
  * 操作 : 获取用户菜单
  *
- * Class UserMenu
+ * Class ActionUserMenu
  * @package YiiBackendUser\actions
  */
-class UserMenu extends Action
+class ActionUserMenu extends Action
 {
     use TResponse;
     use TValidator;

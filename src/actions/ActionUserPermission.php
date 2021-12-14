@@ -16,10 +16,10 @@ use YiiHelper\traits\TResponse;
 /**
  * 操作 : 登录用户拥有的权限
  *
- * Class UserPermission
+ * Class ActionUserPermission
  * @package YiiBackendUser\actions
  */
-class UserPermission extends Action
+class ActionUserPermission extends Action
 {
     use TResponse;
 

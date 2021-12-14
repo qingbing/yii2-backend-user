@@ -9,7 +9,7 @@ namespace YiiBackendUser\controllers;
 
 
 use Exception;
-use YiiBackendUser\actions\AssignUserRole;
+use YiiBackendUser\actions\ActionAssignUserRole;
 use YiiBackendUser\interfaces\IMemberService;
 use YiiBackendUser\models\User;
 use YiiBackendUser\models\UserAccount;
@@ -37,7 +37,7 @@ class MemberController extends RestController
     {
         return [
             // 给用户分配角色
-            'assign-role' => AssignUserRole::class,
+            'assign-role' => ActionAssignUserRole::class,
         ];
     }
 
