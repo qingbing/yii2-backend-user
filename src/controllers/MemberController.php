@@ -18,7 +18,6 @@ use YiiHelper\abstracts\RestController;
 use YiiHelper\validators\SecurityOperateValidator;
 use Zf\Helper\Traits\Models\TLabelEnable;
 use Zf\Helper\Traits\Models\TLabelSex;
-use Zf\Helper\Traits\Models\TLabelYesNo;
 
 /**
  * 控制器 ： 成员管理
@@ -61,9 +60,9 @@ class MemberController extends RestController
             ['qq', 'string', 'label' => 'QQ'],
             ['id_card', 'string', 'label' => '身份证号'],
             ['is_enable', 'in', 'label' => '启用状态', 'range' => array_keys(TLabelEnable::enableLabels())],
-            ['is_super', 'in', 'label' => '是否超管', 'range' => array_keys(TLabelYesNo::isLabels())],
+            ['is_super', 'boolean', 'label' => '是否超管'],
             ['refer_uid', 'exist', 'label' => 'UID', 'targetClass' => User::class, 'targetAttribute' => 'uid'],
-            ['isExpire', 'in', 'label' => '是否有效', 'range' => array_keys(TLabelYesNo::isLabels())],
+            ['isExpire', 'boolean', 'label' => '是否有效'],
 
             ['time_type', 'in', 'label' => '时间', 'range' => array_keys(User::timeTypes())],
             ['start_at', 'datetime', 'label' => '开始时间', 'format' => 'php:Y-m-d H:i:s'],

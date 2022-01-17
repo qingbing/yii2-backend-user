@@ -15,7 +15,7 @@ use YiiHelper\traits\TLoginRequired;
 use YiiHelper\traits\TResponse;
 use YiiHelper\traits\TValidator;
 use YiiPermission\logic\PermissionLogic;
-use Zf\Helper\Traits\Models\TLabelYesNo;
+use Zf\Helper\Traits\Models\TLabelEnable;
 
 /**
  * 操作 : 为用户分配角色
@@ -49,7 +49,7 @@ class ActionAssignUserRole extends Action
         // 参数验证和获取
         $this->params = $this->validateParams([
             [['uid', 'is_enable', 'role_codes'], 'required'],
-            ['is_enable', 'in', 'label' => '是否有效', 'range' => array_keys(TLabelYesNo::isLabels())],
+            ['is_enable', 'in', 'label' => '是否有效', 'range' => array_keys(TLabelEnable::enableLabels())],
             ['uid', 'exist', 'label' => '用户', 'targetClass' => User::class, 'targetAttribute' => 'uid'],
             [
                 'role_codes',
