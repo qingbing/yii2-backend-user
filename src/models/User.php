@@ -11,6 +11,7 @@ namespace YiiBackendUser\models;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
+use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 use yii\web\IdentityInterface;
 use YiiBackendUser\components\User as UserComponent;
@@ -19,7 +20,9 @@ use YiiHelper\behaviors\DefaultBehavior;
 use YiiHelper\behaviors\IpBehavior;
 use YiiPermission\models\PermissionApi;
 use YiiPermission\models\PermissionMenu;
+use YiiPermission\models\PermissionMenuApi;
 use YiiPermission\models\PermissionRole;
+use YiiPermission\models\PermissionRoleMenu;
 use YiiPermission\models\PermissionUserRole;
 use Zf\Helper\Exceptions\BusinessException;
 use Zf\Helper\Util;
@@ -288,7 +291,7 @@ class User extends Model implements IdentityInterface
     /**
      * 关联 : 用户账户
      *
-     * @return \yii\db\ActiveQuery
+     * @return ActiveQuery
      */
     public function getAccounts()
     {
@@ -369,70 +372,149 @@ class User extends Model implements IdentityInterface
      * 关联 : 获取用户已经分配的角色
      *
      * @param bool $onlyValid
-     * @return \yii\db\ActiveQuery
+     * @param bool $forQuery
+     * @return array|ActiveQuery|$this[]
      * @throws InvalidConfigException
      */
-    public function getRoles($onlyValid = true)
+    public function getRoles($onlyValid = true, $forQuery = false)
     {
         if ($this->is_super) {
             // 超级管理员
             $query = PermissionRole::find()
                 ->alias('role');
-            if ($onlyValid) {
-                $query->andWhere(['=', 'role.is_enable', 1]);
-            }
-            return $query;
+        } else {
+            // 普通管理员
+            $query = $this->hasMany(PermissionRole::class, [
+                'code' => 'role_code',
+            ])
+                ->alias('role')
+                ->viaTable(PermissionUserRole::tableName(), [
+                    'uid' => 'uid'
+                ]);
         }
-        // 普通管理员
-        $query = $this->hasMany(PermissionRole::class, [
-            'code' => 'role_code',
-        ])
-            ->alias('role')
-            ->viaTable(PermissionUserRole::tableName(), [
-                'uid' => 'uid'
-            ]);
         if ($onlyValid) {
             $query->andWhere(['=', 'role.is_enable', 1]);
         }
-        return $query;
+        return $forQuery ? $query : $query->all();
+    }
+
+    /**
+     * 获取用户的权限菜单
+     *
+     * @param string $menuType
+     * @param bool $withButton
+     * @param string $direction
+     * @return array|ActiveRecord[]
+     * @throws InvalidConfigException
+     */
+    public function getMenus($menuType = null, $withButton = false, $direction = DIRECTION_NONE)
+    {
+        /**
+         * 获取用户的角色
+         */
+        $roleRes = $this->getRoles(true, true)
+            ->select(['id', 'code', 'name'])
+            ->asArray()
+            ->all();
+        $roles   = array_column($roleRes, 'name', 'code');
+        $query   = PermissionMenu::find()
+            ->alias('menu')
+            ->select(['menu.type', 'menu.code', 'menu.parent_code'])
+            ->andWhere(['=', 'menu.is_enable', 1])
+            ->indexBy('code');
+        if (!empty($menuType)) {
+            if ($withButton) {
+                $query->andWhere(['in', 'type', [$menuType, PermissionMenu::TYPE_BUTTON]]);
+            } else {
+                $query->andWhere(['=', 'type', $menuType]);
+            }
+        }
+        /**
+         * 获取用户的菜单
+         */
+        // 公共菜单
+        $pubMenu = (clone $query)
+            ->andWhere(['=', 'menu.is_public', 1])
+            ->asArray()
+            ->all();
+        // 权限菜单
+        $mainQuery = (clone $query);
+        if (!$this->is_super) {
+            $mainQuery->andWhere(['in', 'rm.role_code', array_keys($roles)]);
+        }
+        $menus = $mainQuery
+            ->leftJoin(PermissionRoleMenu::tableName() . 'as rm', 'rm.menu_code=menu.code')
+            ->asArray()
+            ->all();
+        $menus = $downMenus = $upMenus = array_merge($menus, $pubMenu);
+        if (DIRECTION_BOTH || DIRECTION_DOWN) {
+            // 向下查找菜单
+            $count = count($menus);
+            while (true) {
+                $downMenus = (clone $query)
+                    ->andWhere(['in', 'parent_code', array_column($upMenus, 'code')])
+                    ->asArray()
+                    ->all();
+                $menus     = array_merge($menus, $downMenus);
+                $newCount  = count($menus);
+                if ($newCount === $count) {
+                    break;
+                }
+                $count = $newCount;
+            }
+        }
+        if (DIRECTION_BOTH || DIRECTION_UP) {
+            // 向上查找菜单
+            $count = count($menus);
+            while (true) {
+                $upMenus  = (clone $query)
+                    ->andWhere(['in', 'code', array_column($upMenus, 'parent_code')])
+                    ->asArray()
+                    ->all();
+                $menus    = array_merge($menus, $upMenus);
+                $newCount = count($menus);
+                if ($newCount === $count) {
+                    break;
+                }
+                $count = $newCount;
+            }
+        }
+        // 向下查找子菜单
+        return $menus;
     }
 
     /**
      * 获取用户的权限，包括 角色、菜单、路径
      *
-     * @param User $user
      * @return array
      * @throws InvalidConfigException
      */
-    public static function getPermissions(User $user)
+    public function getPermissions()
     {
-        // 获取用户分配的角色、权限、路径
-        $res = $user->getRoles()
-            ->joinWith(['menus.apis'])
-            ->select([
-                'role_code' => 'role.code',
-                'role_name' => 'role.name',
-                'menu_code' => 'menu.code',
-                'menu_path' => 'menu.path',
-                'api_code'  => 'api.code',
-                'api_path'  => 'api.path',
-            ])
-            ->andWhere(['=', 'menu.is_enable', 1])
-            ->andWhere(['=', 'api.is_enable', 1])
+        /**
+         * 获取用户的角色
+         */
+        $roleRes = $this->getRoles(true, true)
+            ->select(['id', 'code', 'name'])
             ->asArray()
             ->all();
-        // 分配的角色
-        $roles = array_column($res, 'role_name', 'role_code');
-        // 分配的菜单
-        $menus = array_column($res, 'menu_path', 'menu_code');
-        // 分配的api后端路径
-        $paths = array_column($res, 'api_path', 'api_code');
-        // 公共的api后端路径
-        $pubApiPaths = PermissionApi::getPublicApi(true, 1);
-        // 公共的菜单
-        $pubMenuPaths = PermissionMenu::getPublicApi(true, 1);
-        $menus        = array_merge($pubMenuPaths, $menus);
-        $paths        = array_merge($pubApiPaths, $paths);
+        $roles   = array_column($roleRes, 'name', 'code');
+        /**
+         * 获取用户的菜单
+         */
+        $menus = $this->getMenus(null, true, DIRECTION_BOTH);
+        /**
+         * 获取用户的api
+         */
+        $apiRes = PermissionApi::find()
+            ->alias('api')
+            ->select(['api.code', 'api.path'])
+            ->leftJoin(PermissionMenuApi::tableName() . 'as ma', 'ma.api_code=api.code')
+            ->andWhere(['=', 'api.is_enable', 1])
+            ->andWhere(['in', 'ma.menu_code', array_keys($menus)])
+            ->asArray()
+            ->all();
+        $paths  = array_column($apiRes, 'path', 'code');
         return [
             'roles' => $roles,
             'menus' => $menus,

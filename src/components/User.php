@@ -114,7 +114,7 @@ class User extends \yii\web\User
         Yii::$app->getSession()->set(self::LOGIN_IS_SUPER_KEY, !!$identity->is_super); // 登录账号类型
         Yii::$app->getSession()->set(self::LOGIN_TYPE_KEY, $identity->getLoginAccount()->type); // 登录账号类型
         Yii::$app->getSession()->set(self::LOGIN_ACCOUNT_KEY, $identity->getLoginAccount()->account); // 登录账号
-        Yii::$app->getSession()->set(self::LOGIN_PERMISSION_KEY, $this->getPermissions($identity)); // 用户权限
+        Yii::$app->getSession()->set(self::LOGIN_PERMISSION_KEY, $this->getPermissions($identity, true)); // 用户权限
         Yii::$app->getSession()->set(self::LOGIN_AUTH_KEY, $identity->getAuthKey()); // 用户权限
 
         // 更新相应登录数据信息
@@ -161,15 +161,15 @@ class User extends \yii\web\User
      * 获取登录用户的所有权限，包括角色、菜单、路径
      *
      * @param UserModel|null $identity
+     * @param bool $reset
      * @return array|mixed
      * @throws InvalidConfigException
      */
-    public function getPermissions(?UserModel $identity = null)
+    public function getPermissions(?UserModel $identity = null, $reset = false)
     {
-        $data = Yii::$app->getSession()->get(self::LOGIN_PERMISSION_KEY);
-        if (!$data) {
+        if ($reset || !($data = Yii::$app->getSession()->get(self::LOGIN_PERMISSION_KEY))) {
             $user = $identity ?: $this->identity;
-            $data = UserModel::getPermissions($user);
+            $data = $user->getPermissions();
             Yii::$app->getSession()->set(self::LOGIN_PERMISSION_KEY, $data); // 用户权限
         }
         return $data;
