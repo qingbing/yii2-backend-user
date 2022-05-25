@@ -33,10 +33,9 @@ use Zf\Helper\Util;
  * @property int $uid 自增ID
  * @property string $nickname 用户昵称
  * @property string $real_name 姓名
- * @property string $password 密码
  * @property string $security_password 安全操作密码
  * @property string $auth_key 登录的auth_key
- * @property int $sex 性别[0:保密,1:男士,2:女士]
+ * @property string $sex 性别[U:保密,M:男士,F:女士]
  * @property string $avatar 头像
  * @property string $email 邮箱账户
  * @property string $mobile 手机号码
@@ -79,11 +78,12 @@ class User extends Model implements IdentityInterface
     {
         return [
             [['nickname'], 'required'],
-            [['sex', 'is_enable', 'is_super', 'refer_uid', 'login_times'], 'integer'],
+            [['sex'], 'string'],
             [['birthday', 'expire_begin_date', 'expire_end_date', 'last_login_at', 'register_at', 'updated_at'], 'safe'],
+            [['is_enable', 'is_super', 'refer_uid', 'login_times'], 'integer'],
             [['nickname'], 'string', 'max' => 50],
             [['real_name'], 'string', 'max' => 30],
-            [['password', 'security_password'], 'string', 'max' => 60],
+            [['security_password'], 'string', 'max' => 60],
             [['auth_key'], 'string', 'max' => 32],
             [['avatar'], 'string', 'max' => 200],
             [['email'], 'string', 'max' => 100],
@@ -92,6 +92,7 @@ class User extends Model implements IdentityInterface
             [['address', 'expire_ip'], 'string', 'max' => 255],
             [['zip_code'], 'string', 'max' => 6],
             [['nickname'], 'unique'],
+            [['email'], 'unique'],
         ];
     }
 
@@ -104,10 +105,9 @@ class User extends Model implements IdentityInterface
             'uid'               => '自增ID',
             'nickname'          => '用户昵称',
             'real_name'         => '姓名',
-            'password'          => '密码',
             'security_password' => '安全操作密码',
             'auth_key'          => '登录的auth_key',
-            'sex'               => '性别[0:保密,1:男士,2:女士]',
+            'sex'               => '性别[U:保密,M:男士,F:女士]',
             'avatar'            => '头像',
             'email'             => '邮箱账户',
             'mobile'            => '手机号码',
@@ -166,6 +166,44 @@ class User extends Model implements IdentityInterface
     }
 
     /**
+     * 生成 db 密码
+     *
+     * @param string $pass
+     * @return string
+     * @throws \yii\base\Exception
+     */
+    public function generatePassword(string $pass)
+    {
+        return Yii::$app->getSecurity()->generatePasswordHash($pass);
+    }
+
+    /**
+     * 验证 db 登录密码是否正确
+     *
+     * @param string $pass
+     * @return bool
+     */
+    public function validatePassword(string $pass)
+    {
+        $account = Yii::$app->user->getUserAccount();
+        if ($account) {
+            return $account->validatePassword($pass);
+        }
+        return false;
+    }
+
+    /**
+     * 验证 security 密码是否正确
+     *
+     * @param string $pass
+     * @return bool
+     */
+    public function validateSecurityPassword(string $pass)
+    {
+        return Yii::$app->getSecurity()->validatePassword($pass, $this->security_password);
+    }
+
+    /**
      * Finds an identity by the given ID.
      * @param string|int $id the ID to be looked for
      * @return IdentityInterface|null the identity object that matches the given ID.
@@ -190,10 +228,20 @@ class User extends Model implements IdentityInterface
 
     /**
      * @inheritDoc
+     * @throws BusinessException
      */
     public function getAuthKey()
     {
-        return $this->auth_key;
+        if (Yii::$app->user->multiUserLogin) {
+            return $this->auth_key;
+        } else if (Yii::$app->user->multiAccountLogin) {
+            $account = Yii::$app->user->getUserAccount();
+            if ($account) {
+                return $account->auth_key;
+            }
+            throw new BusinessException('暂无登录账户');
+        }
+        return 'auth_key';
     }
 
     /**
@@ -201,7 +249,16 @@ class User extends Model implements IdentityInterface
      */
     public function validateAuthKey($authKey)
     {
-        return $this->auth_key == $authKey;
+        if (Yii::$app->user->multiUserLogin) {
+            return $this->auth_key == $authKey;
+        } else if (Yii::$app->user->multiAccountLogin) {
+            $account = Yii::$app->user->getUserAccount();
+            if ($account) {
+                return $account->auth_key == $authKey;
+            }
+            throw new BusinessException('暂无登录账户');
+        }
+        return true;
     }
 
     /**
@@ -214,47 +271,23 @@ class User extends Model implements IdentityInterface
     }
 
     /**
-     * 生成 db 密码
-     *
-     * @param string $pass
-     * @return string
-     * @throws \yii\base\Exception
-     */
-    public function generatePassword(string $pass)
-    {
-        return Yii::$app->getSecurity()->generatePasswordHash($pass);
-    }
-
-    /**
-     * 验证 db 登录密码是否正确
-     *
-     * @param string $pass
-     * @return bool
-     */
-    public function validatePassword(string $pass)
-    {
-        return Yii::$app->getSecurity()->validatePassword($pass, $this->password);
-    }
-
-    /**
-     * 验证 security 密码是否正确
-     *
-     * @param string $pass
-     * @return bool
-     */
-    public function validateSecurityPassword(string $pass)
-    {
-        return Yii::$app->getSecurity()->validatePassword($pass, $this->security_password);
-    }
-
-    /**
      * 创建登录auth_key
      *
      * @return $this
+     * @throws BusinessException
      */
     public function generateAuthKey()
     {
-        $this->auth_key = Util::uniqid();
+        if (Yii::$app->user->multiUserLogin) {
+            $this->auth_key = Util::uniqid();
+        } else if (Yii::$app->user->multiAccountLogin) {
+            $account = Yii::$app->user->getUserAccount();
+            if ($account) {
+                $account->auth_key = Util::uniqid();
+            } else {
+                throw new BusinessException('暂无登录账户');
+            }
+        }
         return $this;
     }
 
@@ -284,7 +317,7 @@ class User extends Model implements IdentityInterface
     public function fields()
     {
         $fields = parent::fields();
-        unset($fields['password'], $fields['security_password'], $fields['auth_key']);
+        unset($fields['security_password'], $fields['auth_key']);
         return $fields;
     }
 

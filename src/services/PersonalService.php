@@ -63,12 +63,15 @@ class PersonalService extends Service implements IPersonalService
      */
     public function resetPassword(array $params): bool
     {
-        $user = $this->getUser();
-        if ($user->validatePassword($params['oldPassword'])) {
-            $user->password = $user->generatePassword($params['newPassword']);
-            return $user->saveOrException();
+        $userAccount = UserAccount::findOne([
+            'uid' => \Yii::$app->user->getId(),
+            'id'  => $params['account_id'],
+        ]);
+        if ($userAccount) {
+            $userAccount->password = \Yii::$app->user->identity->generatePassword($params['newPassword']);
+            return $userAccount->saveOrException();
         }
-        throw new BusinessException("原始密码输入不正确");
+        throw new BusinessException("账户信息不存在");
     }
 
     /**
@@ -127,9 +130,12 @@ class PersonalService extends Service implements IPersonalService
     public function addAccount(array $params): bool
     {
         $model = new UserAccount();
+        if (!empty($params['password'])) {
+            $model->password = $this->getUser()->generatePassword($params['password']);
+        }
+        unset($params['password']);
         $model->setFilterAttributes($params);
         $model->uid = $this->getUser()->uid;
-        $model->setFilterAttributes($params);
         return $model->saveOrException();
     }
 

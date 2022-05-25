@@ -8,6 +8,7 @@
 namespace YiiBackendUser\models;
 
 
+use Yii;
 use YiiBackendUser\services\loginType\drivers\Email;
 use YiiBackendUser\services\loginType\drivers\Mobile;
 use YiiBackendUser\services\loginType\drivers\Name;
@@ -26,6 +27,8 @@ use Zf\Helper\Exceptions\CustomException;
  * @property int $uid 用户ID
  * @property string $type 账户类型:username,email,phone,name,weixin,qq等
  * @property string $account 登录账户
+ * @property string $password 密码
+ * @property string $auth_key 登录的auth_key
  * @property int $is_enable 启用状态
  * @property int $login_times 登录次数
  * @property string $last_login_ip 最后登录IP
@@ -54,6 +57,8 @@ class UserAccount extends Model
             [['last_login_at', 'register_at', 'updated_at'], 'safe'],
             [['type'], 'string', 'max' => 20],
             [['account'], 'string', 'max' => 100],
+            [['password'], 'string', 'max' => 60],
+            [['auth_key'], 'string', 'max' => 32],
             [['last_login_ip'], 'string', 'max' => 15],
             [['type', 'account'], 'unique', 'targetAttribute' => ['type', 'account']],
         ];
@@ -69,6 +74,8 @@ class UserAccount extends Model
             'uid'           => '用户ID',
             'type'          => '账户类型',
             'account'       => '登录账户',
+            'password'      => '密码',
+            'auth_key'      => '登录的auth_key',
             'is_enable'     => '启用状态',
             'login_times'   => '登录次数',
             'last_login_ip' => '登录IP',
@@ -76,6 +83,29 @@ class UserAccount extends Model
             'register_at'   => '注册时间',
             'updated_at'    => '更新时间',
         ];
+    }
+
+    /**
+     * 设置常规模型的 toArray 字段
+     *
+     * @return array|false
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+        unset($fields['password'], $fields['auth_key']);
+        return $fields;
+    }
+
+    /**
+     * 验证 db 登录密码是否正确
+     *
+     * @param string $pass
+     * @return bool
+     */
+    public function validatePassword(string $pass)
+    {
+        return Yii::$app->getSecurity()->validatePassword($pass, $this->password);
     }
 
     /**

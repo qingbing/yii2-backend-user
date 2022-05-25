@@ -41,9 +41,13 @@ class User extends \yii\web\User
      */
     public $operateClass;
     /**
-     * @var boolean 统一账号是否允许多处登录
+     * @var boolean 同一用户是否允许多处登录，优先级高于 multiAccountLogin
      */
-    public $multiLogin = false;
+    public $multiUserLogin = false;
+    /**
+     * @var boolean 同一账号是否允许多处登录
+     */
+    public $multiAccountLogin = false;
     /**
      * @var array 支持的用户登录类型
      */
@@ -93,7 +97,7 @@ class User extends \yii\web\User
     protected function beforeLogin($identity, $cookieBased, $duration)
     {
         /* @var UserModel $identity */
-        if (!$this->multiLogin) {
+        if (!$this->multiUserLogin || !$this->multiAccountLogin) {
             // 不允许多机登录时，创建新登录的 auth_key，这样会挤出其它地方登录的账户
             $identity->generateAuthKey();
         }

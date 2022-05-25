@@ -6,10 +6,9 @@ CREATE TABLE `{{%user}}` (
   `uid` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
   `nickname` varchar(50) NOT NULL COMMENT '用户昵称',
   `real_name` varchar(30) NOT NULL DEFAULT '' COMMENT '姓名',
-  `password` char(60) NOT NULL DEFAULT '' COMMENT '密码',
   `security_password` char(60) NOT NULL DEFAULT '' COMMENT '安全操作密码',
   `auth_key` varchar(32) NOT NULL DEFAULT 'auth_key' COMMENT '登录的auth_key',
-  `sex` tinyint(1) NOT NULL DEFAULT '0' COMMENT '性别[0:保密,1:男士,2:女士]',
+  `sex` enum("U","M","F") NOT NULL DEFAULT 'U' COMMENT '性别[U:保密,M:男士,F:女士]',
   `avatar` varchar(200) NOT NULL DEFAULT '' COMMENT '头像',
   `email` varchar(100) NOT NULL DEFAULT '' COMMENT '邮箱账户',
   `mobile` varchar(15) NOT NULL DEFAULT '' COMMENT '手机号码',
@@ -33,9 +32,9 @@ CREATE TABLE `{{%user}}` (
   `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '最后数据更新时间',
   PRIMARY KEY (`uid`),
   UNIQUE KEY `uk_nickname` (`nickname`),
-  KEY `idx_realName` (`real_name`),
-  KEY `idx_email` (`email`),
-  KEY `idx_mobile` (`mobile`)
+  UNIQUE KEY `idx_email` (`email`),
+  KEY `idx_mobile` (`mobile`),
+  KEY `idx_realName` (`real_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=100000000 DEFAULT CHARSET=utf8 COMMENT='用户主体';
 
 
@@ -47,6 +46,8 @@ CREATE TABLE `{{%user_account}}` (
   `uid` bigint(20) unsigned NOT NULL COMMENT '用户ID',
   `type` varchar(20) NOT NULL COMMENT '账户类型:username,email,phone,name,weixin,qq等',
   `account` varchar(100) NOT NULL COMMENT '登录账户',
+  `password` char(60) NOT NULL DEFAULT '' COMMENT '密码',
+  `auth_key` varchar(32) NOT NULL DEFAULT 'auth_key' COMMENT '登录的auth_key',
   `is_enable` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '启用状态',
   `login_times` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '登录次数',
   `last_login_ip` varchar(15) NOT NULL DEFAULT '' COMMENT '最后登录IP',
@@ -59,11 +60,10 @@ CREATE TABLE `{{%user_account}}` (
 
 
 insert into `{{%user}}`
-(`password`, `auth_key`,  `nickname`, `real_name`, `sex`, `avatar`, `email`, `mobile`, `phone`, `qq`, `id_card`, `birthday`, `address`, `zip_code`, `is_enable`, `is_super`, `refer_uid`, `expire_ip`, `expire_begin_date`, `expire_end_date`, `login_times`, `last_login_ip`, `last_login_at`, `register_ip`) values
-('$2y$13$10RjkwZ8kbam8hRAYqAoxuxMHnnPScxDljb1wxrXlTniY8kIjDaBm', 'auth_key',  '追xin族', 'qingbing', '0', '', 'top-world@qq.com', '', '', '', '', '1000-01-01', '', '', '1', '1', '0', '', '1000-01-01', '1000-01-01', '0', '', '1000-01-01 01:01:01', '');
+(`nickname`, `real_name`, `sex`, `avatar`, `email`, `mobile`, `phone`, `qq`, `id_card`, `birthday`, `address`, `zip_code`, `is_enable`, `is_super`, `refer_uid`, `expire_ip`, `expire_begin_date`, `expire_end_date`, `login_times`, `last_login_ip`, `last_login_at`, `register_ip`) values
+('追xin族', 'qingbing', 'U', '', 'top-world@qq.com', '', '', '', '', '1000-01-01', '', '', '1', '1', '0', '', '1000-01-01', '1000-01-01', '0', '', '1000-01-01 01:01:01', '');
 
 
 insert into `{{%user_account}}`
-( `uid`, `type`, `account`, `is_enable`, `login_times`, `last_login_ip`, `last_login_at`) values
-( '100000000', 'email', 'top-world@qq.com', '1', '0', '', '1000-01-01 01:01:01'),
-( '100000000', 'username', 'qingbing', '1', '0', '', '1000-01-01 01:01:01');
+( `uid`, `type`, `account`, `password`, `auth_key`,  `is_enable`, `login_times`, `last_login_ip`, `last_login_at`) values
+( '100000000', 'email', 'top-world@qq.com', '$2y$13$10RjkwZ8kbam8hRAYqAoxuxMHnnPScxDljb1wxrXlTniY8kIjDaBm', 'auth_key',  '1', '0', '', '1000-01-01 01:01:01');

@@ -31,6 +31,16 @@ use Zf\Helper\Format;
 class MemberService extends Service implements IMemberService
 {
     /**
+     * 搜索时间类型
+     *
+     * @return array
+     */
+    public function timeTypeMap(): array
+    {
+        return User::timeTypes();
+    }
+
+    /**
      * 成员列表
      *
      * @param array|null $params
@@ -89,24 +99,51 @@ class MemberService extends Service implements IMemberService
         // 删除账户和密码
         unset($userAttributes['account'], $userAttributes['password']);
         $user->setFilterAttributes($userAttributes);
-        $user->refer_uid      = Req::getUid();
-        $user->password       = $user->generatePassword($params['password']);
-        $accountType          = UserAccount::getDefaultAccountType();
-        $userAccount->account = $params['account'];
-        $userAccount->type    = $accountType;
-        switch ($accountType) {
-            case UserAccount::TYPE_EMAIL   : // 邮箱
-                $user->email = $params['account'];
-                break;
-            case UserAccount::TYPE_MOBILE  : // 手机号
-                $user->mobile = $params['account'];
-                break;
-            case UserAccount::TYPE_NAME    : // 姓名
-                $user->real_name = $params['account'];
-                break;
-            case UserAccount::TYPE_USERNAME: // 用户名
-            default:
-                break;
+        $user->refer_uid = Req::getUid();
+        $accountType     = UserAccount::getDefaultAccountType();
+
+        $userAccount->type     = $accountType;
+        $userAccount->password = $user->generatePassword($params['password']);
+        if (!empty($params['account'])) {
+            // 直接给出账号
+            $userAccount->account = $params['account'];
+            switch ($accountType) {
+                case UserAccount::TYPE_EMAIL   : // 邮箱
+                    $user->email = $params['account'];
+                    break;
+                case UserAccount::TYPE_MOBILE  : // 手机号
+                    $user->mobile = $params['account'];
+                    break;
+                case UserAccount::TYPE_NAME    : // 姓名
+                    $user->real_name = $params['account'];
+                    break;
+                case UserAccount::TYPE_USERNAME: // 用户名
+                default:
+                    break;
+            }
+        } else {
+            // 间接给出账号
+            switch ($accountType) {
+                case UserAccount::TYPE_EMAIL   : // 邮箱
+                    $userAccount->account = $params['email'];
+                    $user->email          = $params['email'];
+                    break;
+                case UserAccount::TYPE_MOBILE  : // 手机号
+                    $userAccount->account = $params['mobile'];
+                    $user->mobile         = $params['mobile'];
+                    break;
+                case UserAccount::TYPE_NAME    : // 姓名
+                    $userAccount->account = $params['real_name'];
+                    $user->real_name      = $params['real_name'];
+                    break;
+                case UserAccount::TYPE_USERNAME: // 用户名
+                default:
+                    $userAccount->account = $params['username'];
+                    break;
+            }
+        }
+        if (empty($userAccount->account)) {
+            throw new BusinessException("未设置账户信息");
         }
         Yii::$app->getDb()->transaction(function () use ($user, $userAccount) {
             $user->saveOrException();
@@ -164,9 +201,16 @@ class MemberService extends Service implements IMemberService
      */
     public function resetPassword(array $params = []): bool
     {
-        $model           = $this->getModel($params);
-        $model->password = $model->generatePassword($params['password']);
-        return $model->saveOrException();
+        $model       = $this->getModel($params);
+        $userAccount = UserAccount::findOne([
+            'id'  => $params['account_id'],
+            'uid' => $model->uid,
+        ]);
+        if (empty($userAccount)) {
+            throw new BusinessException("账户信息不匹配");
+        }
+        $userAccount->password = $model->generatePassword($params['password']);
+        return $userAccount->saveOrException();
     }
 
     /**

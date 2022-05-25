@@ -85,7 +85,7 @@ abstract class LoginLogic extends BaseObject
             throw new BusinessException('用户已停用');
         }
         // 密码检查
-        if (!$user->validatePassword($this->password)) {
+        if (!$userAccount->validatePassword($this->password)) {
             throw new BusinessException('请确认账户密码正确');
         }
         $today = Format::date();

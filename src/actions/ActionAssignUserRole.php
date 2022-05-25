@@ -48,8 +48,7 @@ class ActionAssignUserRole extends Action
         $hasRoles = AppHelper::app()->getUser()->getPermissions()['roles'];
         // 参数验证和获取
         $this->params = $this->validateParams([
-            [['uid', 'is_enable', 'role_codes'], 'required'],
-            ['is_enable', 'in', 'label' => '是否有效', 'range' => array_keys(TLabelEnable::enableLabels())],
+            [['uid', 'role_codes'], 'required'],
             ['uid', 'exist', 'label' => '用户', 'targetClass' => User::class, 'targetAttribute' => 'uid'],
             [
                 'role_codes',
@@ -72,7 +71,7 @@ class ActionAssignUserRole extends Action
      */
     public function run()
     {
-        $status = PermissionLogic::assignUserRole($this->params['uid'], $this->params['role_codes'], $this->params['is_enable']);
+        $status = PermissionLogic::assignUserRole($this->params['uid'], $this->params['role_codes']);
         return $this->success($status, '分配角色成功');
     }
 }

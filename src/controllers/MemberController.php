@@ -41,6 +41,20 @@ class MemberController extends RestController
     }
 
     /**
+     * 搜索时间类型
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function actionTimeTypeMap()
+    {
+        // 业务处理
+        $res = $this->service->timeTypeMap();
+        // 渲染结果
+        return $this->success($res, '搜索时间类型');
+    }
+
+    /**
      * 成员列表
      *
      * @return array
@@ -61,10 +75,10 @@ class MemberController extends RestController
             ['id_card', 'string', 'label' => '身份证号'],
             ['is_enable', 'in', 'label' => '启用状态', 'range' => array_keys(TLabelEnable::enableLabels())],
             ['is_super', 'boolean', 'label' => '是否超管'],
-            ['refer_uid', 'exist', 'label' => 'UID', 'targetClass' => User::class, 'targetAttribute' => 'uid'],
+            ['refer_uid', 'exist', 'label' => '推荐UID', 'targetClass' => User::class, 'targetAttribute' => 'uid'],
             ['isExpire', 'boolean', 'label' => '是否有效'],
 
-            ['time_type', 'in', 'label' => '时间', 'range' => array_keys(User::timeTypes())],
+            ['time_type', 'in', 'label' => '搜索时间', 'range' => array_keys(User::timeTypes())],
             ['start_at', 'datetime', 'label' => '开始时间', 'format' => 'php:Y-m-d H:i:s'],
             ['end_at', 'datetime', 'label' => '结束时间', 'format' => 'php:Y-m-d H:i:s'],
         ], null, true);
@@ -85,9 +99,12 @@ class MemberController extends RestController
         // 参数验证和获取
         $accountType = UserAccount::getDefaultAccountType();
         $rules       = [
-            [['nickname', 'account', 'password', 'sex', 'is_enable'], 'required'],
+            [['nickname', 'password', 'sex', 'is_enable'], 'required'],
             ['nickname', 'unique', 'label' => '用户昵称', 'targetClass' => User::class, 'targetAttribute' => 'nickname'],
             ['account', 'unique', 'label' => '默认账号', 'targetClass' => UserAccount::class, 'targetAttribute' => 'account', 'filter' => ['=', 'type', $accountType]],
+            ['email', 'unique', 'label' => '默认账号', 'targetClass' => User::class, 'targetAttribute' => 'email'],
+            ['mobile', 'unique', 'label' => '默认账号', 'targetClass' => User::class, 'targetAttribute' => 'mobile'],
+            ['real_name', 'unique', 'label' => '默认账号', 'targetClass' => User::class, 'targetAttribute' => 'real_name'],
             ['password', 'string', 'label' => '登录密码', 'min' => 6],
             ['sex', 'in', 'label' => '性别', 'default' => 0, 'range' => array_keys(TLabelSex::sexLabels())],
             ['is_enable', 'in', 'label' => '启用状态', 'range' => array_keys(TLabelEnable::enableLabels())],
@@ -174,8 +191,9 @@ class MemberController extends RestController
     {
         // 参数验证和获取
         $params = $this->validateParams([
-            [['uid', 'password', 'securityPassword'], 'required'],
+            [['uid', 'account_id', 'password', 'securityPassword'], 'required'],
             ['uid', 'exist', 'label' => 'UID', 'targetClass' => User::class, 'targetAttribute' => 'uid'],
+            ['account_id', 'exist', 'label' => '账户', 'targetClass' => UserAccount::class, 'targetAttribute' => 'id'],
             ['password', 'string', 'label' => '登录密码', 'min' => 6],
             ['securityPassword', SecurityOperateValidator::class, 'label' => '操作密码'],
         ]);

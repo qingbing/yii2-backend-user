@@ -133,8 +133,9 @@ class PersonalController extends RestController
     {
         // 参数验证和获取
         $params = $this->validateParams([
-            [['oldPassword', 'newPassword', 'confirmPassword'], 'required'],
-            ['oldPassword', SecurityOperateValidator::class, 'label' => '旧密码', 'method' => 'validatePassword'],
+            [['account_id', 'securityPassword', 'newPassword', 'confirmPassword'], 'required'],
+            ['account_id', 'exist', 'label' => '账户ID', 'targetClass' => UserAccount::class, 'targetAttribute' => 'id', 'filter' => ['=', 'uid', $this->user->uid]],
+            ['securityPassword', SecurityOperateValidator::class, 'label' => '操作密码'],
             ['newPassword', PasswordValidator::class, 'label' => '新密码'],
             ['confirmPassword', 'compare', 'label' => '确认密码', 'compareAttribute' => 'newPassword'],
         ]);
@@ -193,6 +194,7 @@ class PersonalController extends RestController
             ['type', 'in', 'label' => '账户类型', 'range' => array_keys(UserAccount::types())],
             ['is_enable', 'in', 'label' => '启用状态', 'default' => 1, 'range' => array_keys(TLabelEnable::enableLabels())],
             ['account', 'unique', 'label' => '账户', 'targetClass' => UserAccount::class, 'targetAttribute' => 'account', 'filter' => ['=', 'type', $type]],
+            ['password', 'string', 'min' => 6, 'label' => '密码'],
         ];
         // 添加账户验证规则
         array_push($rules, UserAccount::getAccountValidatorRule($type));

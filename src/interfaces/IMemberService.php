@@ -19,6 +19,13 @@ use YiiHelper\services\interfaces\ICurdService;
 interface IMemberService extends ICurdService
 {
     /**
+     * 搜索时间类型
+     *
+     * @return array
+     */
+    public function timeTypeMap(): array;
+
+    /**
      * 重置用户密码
      *
      * @param array $params
