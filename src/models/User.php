@@ -166,6 +166,70 @@ class User extends Model implements IdentityInterface
     }
 
     /**
+     * 设置常规模型的 toArray 字段
+     *
+     * @return array|false
+     */
+    public function fields()
+    {
+        $fields = parent::fields();
+        unset($fields['security_password'], $fields['auth_key']);
+        return $fields;
+    }
+
+    /**
+     * @inheritDoc
+     *
+     * @throws BusinessException
+     * @throws InvalidConfigException
+     * @throws \Zf\Helper\Exceptions\UnsupportedException
+     */
+    public function beforeDelete()
+    {
+        if (count($this->accounts)) {
+            throw new BusinessException("用户下还有账户，不能删除");
+        }
+        delete_upload_file($this->avatar);
+        return parent::beforeDelete();
+    }
+
+    /**
+     * 保存信息处理头像的更改
+     *
+     * @param bool $insert
+     * @return bool
+     * @throws InvalidConfigException
+     * @throws \Zf\Helper\Exceptions\UnsupportedException
+     */
+    public function beforeSave($insert)
+    {
+        if ($this->oldAttributes['avatar'] !== $this->avatar) {
+            if (!empty($this->oldAttributes['avatar'])) {
+                delete_upload_file($this->oldAttributes['avatar']);
+            }
+            if (!empty($this->avatar)) {
+                $this->avatar = permanent_upload_file($this->avatar);
+            }
+        }
+        return parent::beforeSave($insert);
+    }
+
+    /**
+     * 序列化处理
+     *
+     * @param array $fields
+     * @param array $expand
+     * @param bool $recursive
+     * @return array
+     */
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        return array_merge(parent::toArray($fields, $expand, $recursive), [
+            'avatar' => $this->avatar ? Yii::$app->params['fileServerPrefix'] . $this->avatar : ""
+        ]);
+    }
+
+    /**
      * 生成 db 密码
      *
      * @param string $pass
@@ -310,18 +374,6 @@ class User extends Model implements IdentityInterface
     }
 
     /**
-     * 设置常规模型的 toArray 字段
-     *
-     * @return array|false
-     */
-    public function fields()
-    {
-        $fields = parent::fields();
-        unset($fields['security_password'], $fields['auth_key']);
-        return $fields;
-    }
-
-    /**
      * 关联 : 用户账户
      *
      * @return ActiveQuery
@@ -333,18 +385,6 @@ class User extends Model implements IdentityInterface
         ])
             ->alias('account')
             ->orderBy("is_enable DESC, id ASC");
-    }
-
-    /**
-     * @inheritDoc
-     * @throws BusinessException
-     */
-    public function beforeDelete()
-    {
-        if (count($this->accounts)) {
-            throw new BusinessException("用户下还有账户，不能删除");
-        }
-        return parent::beforeDelete();
     }
 
     /**
