@@ -41,6 +41,35 @@ class MemberService extends Service implements IMemberService
     }
 
     /**
+     * 模糊搜索用户
+     *
+     * @param array $params
+     * @return array
+     */
+    public function searchOption(array $params = []): array
+    {
+        $query = User::find()
+            ->select([
+                'uid',
+                'nickname',
+                'is_enable',
+            ])
+            ->andFilterWhere(['like', 'nickname', $params['keyword']])
+            ->orderBy("is_enable DESC, is_super DESC")
+            ->limit($params['limit']);
+        if (null !== $params['is_enable']) {
+            $query->andWhere(['=', 'is_enable', $params['is_enable']]);
+        }
+        $res = $query->asArray()
+            ->all();
+        $R   = [];
+        foreach ($res as $re) {
+            $R[$re['uid']] = "{$re['nickname']}" . ($re['is_enable'] ? "" : "({$re['停用']})");
+        }
+        return $R;
+    }
+
+    /**
      * 成员列表
      *
      * @param array|null $params

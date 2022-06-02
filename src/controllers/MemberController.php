@@ -55,6 +55,26 @@ class MemberController extends RestController
     }
 
     /**
+     * 模糊搜索用户
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function actionSearchOption()
+    {
+        // 参数验证和获取
+        $params = $this->validateParams([
+            ['keyword', 'string', 'label' => '关键字'],
+            ['limit', 'integer', 'label' => '返回条数', 'default' => 10],
+            ['is_enable', 'in', 'label' => '启用状态', 'range' => array_keys(TLabelEnable::enableLabels())],
+        ]);
+        // 业务处理
+        $res = $this->service->searchOption($params);
+        // 渲染结果
+        return $this->success($res, '搜索时间类型');
+    }
+
+    /**
      * 成员列表
      *
      * @return array

@@ -26,6 +26,14 @@ interface IMemberService extends ICurdService
     public function timeTypeMap(): array;
 
     /**
+     * 模糊搜索用户
+     *
+     * @param array $params
+     * @return array
+     */
+    public function searchOption(array $params = []): array;
+
+    /**
      * 重置用户密码
      *
      * @param array $params
